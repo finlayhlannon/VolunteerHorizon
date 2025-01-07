@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - VolunteerHorizon</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background: #f8f9fa;
+            color: #2d3436;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00b894;
+        }
+
+        .nav-links a {
+            margin-left: 2rem;
+            text-decoration: none;
+            color: #2d3436;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #00b894;
+        }
+
+        .about {
+            min-height: 100vh;
+            padding: 10% 10%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            margin-bottom: -200px;
+        }
+
+        .about h1 {
+            font-size: 3rem;
+            color: #2d3436;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .about p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #636e72;
+            max-width: 800px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .highlight {
+            color: #00b894;
+            font-weight: 700;
+        }
+
+        .about-images {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .about-image {
+            width: 250px;
+            height: 250px;
+            background: #dfe6e9;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transform: scale(0.8);
+            opacity: 0;
+        }
+
+        .about-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @media (max-width: 768px) {
+            .about h1 {
+                font-size: 2.5rem;
+            }
+
+            .about-images {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">VolunteerHorizon</div>
+        <div class="nav-links">
+            <a href="./index.html">Home</a>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+
+    <section class="about">
+        <h1>About <span class="highlight">VolunteerHorizon</span></h1>
+        <p>
+            At <span class="highlight">VolunteerHorizon</span>, our mission is to empower communities through meaningful connections.
+            We bridge the gap between passionate individuals like you and local organizations that need your support.
+            Together, we can make a difference and create a brighter future.
+        </p>
+        <div class="about-images">
+            <div class="about-image">
+                <img src="static/img_1.jpg" alt="Community event">
+            </div>
+            <div class="about-image">
+                <img src="static/img_2.jpg" alt="Teamwork">
+            </div>
+            <div class="about-image">
+                <img src="static/img_3.jpg" alt="Volunteers at work">
+            </div>
+        </div>
+
+        <p>
+            <br><br><br>
+            As a team of high school students here at <span class="highlight">VolunteerHorizon</span>, we know exactly 
+            how you feel when you're trying to find meaningful opportunities that align with your passions and fit your schedule. 
+            We've been there—navigating countless websites, sending endless emails, and feeling overwhelmed by the lack of clear options. 
+            That’s why we created this platform to simplify the process and connect you with the right organizations effortlessly.
+        </p>
+    </section>
+
+    <section class="about">
+        <h1>Why you should find <span class="highlight">volunteer</span> opportunities</h1>
+        <p>
+            Balancing a busy life with a desire to give back can be challenging, but the rewards of volunteering are immense. 
+            By dedicating time to help those in need, support important causes, and strengthen your community, you not only make a difference 
+            for others but also experience personal growth. The right volunteer opportunity can help you build friendships, 
+            connect with your community, develop new skills, and even open doors for career advancement. <br><br>
+
+            Volunteering also nurtures your mental and physical well-being. It can ease stress, combat feelings of depression, 
+            keep your mind active, and provide a deep sense of purpose. Whether you commit to long-term volunteering or offer small acts of 
+            kindness, every effort counts. Even small contributions can have a meaningful impact while enhancing your own health and happiness.
+        </p>
+    </section>
+    <script>
+        // Navbar animation
+        gsap.to(".navbar", {
+            opacity: 1,
+            duration: 1,
+            ease: "power2.out"
+        });
+
+        // About section animation
+        gsap.to(".about", {
+            opacity: 1,
+            duration: 1,
+            delay: 0.5,
+            ease: "power2.out"
+        });
+
+        // About images animation
+        gsap.to(".about-image", {
+            opacity: 1,
+            scale: 1,
+            duration: 0.8,
+            delay: 1,
+            ease: "power2.out",
+            stagger: 0.3
+        });
+    </script>
+</body>
+</html>

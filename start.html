@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Volunteering</title>
+    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-container.hidden {
+            opacity: 0;
+            transform: translateY(-20px);
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .selected-skills-banner {
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: none;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .selected-skills-banner.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h2 {
+            color: #2d3436;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .selected-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .skill-tag {
+            background: #e0f2f1;
+            color: #00897b;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .remove-skill {
+            background: none;
+            border: none;
+            color: #00897b;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .find-button {
+            width: 100%;
+            padding: 1rem;
+            background: #00897b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .find-button:hover {
+            background: #00796b;
+        }
+
+        .find-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .opportunity-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+        }
+
+        .opportunity-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            color: #2d3436;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-org {
+            color: #636e72;
+            margin-bottom: 1rem;
+        }
+
+        .card-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-skill-tag {
+            background: #f0f9f8;
+            color: #00897b;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .card-detail {
+            color: #2d3436;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 1024px) {
+            .results-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            body {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container" id="formContainer">
+            <h2>Select Your Skills</h2>
+            <select id="skillSelect">
+                <option value="">+ Add a skill</option>
+            </select>
+            <div class="selected-skills" id="selectedSkills"></div>
+            <button id="findButton" class="find-button" disabled>Find Opportunities</button>
+        </div>
+
+        <div class="selected-skills-banner" id="skillsBanner">
+            <div class="selected-skills" id="selectedSkillsBanner"></div>
+        </div>
+
+        <div class="results-grid" id="resultsGrid"></div>
+    </div>
+
+    <script>
+        const skills = [
+            'Academics', 'Administrative & Clerical', 'Animals & Environment', 'Arts', 'Business & Management',
+            'Children & Family', 'Computers & IT', 'Disaster Relief', 'Education & Literacy', 'Engineering',
+            'Finance', 'Food Service & Events', 'For Profit & Nonprofit Development', 'HR', 'Healthcare & Social Services',
+            'Hobbies & Crafts', 'Housing & Facilities', 'IT Infrastructure & Software', 'Interactive & Web Development',
+            'Interpersonal', 'Language & Culture', 'Legal & Advocacy', 'Logistics', 'Supply Chain & Transportation',
+            'Marketing & Communications', 'Music', 'Performing Arts', 'Sports & Recreation', 'Strategy Development & Business Planning',
+            'Trades'
+        ];
+
+        const opportunities = [
+            {
+                title: "Thrifty Foods Sendial",
+                organization: "Thrifty Foods Sendial",
+                skills: ["Food Service & Events", "Healthcare & Social Services"],
+                location: "Thrifty Foods",
+                commitment: "2-3 hours/week",
+                url: "https://www.thriftyfoods.com/community/sendial/volunteer"
+            },
+            {
+                title: "Westshore ReStore Volunteer",
+                organization: "Habitat for Humanity Victoria",
+                skills: ["Marketing & Communications", "Trades"],
+                location: "849 Orono Avenue, Victoria, BC, Canada",
+                commitment: "9am-1pm and 1pm-5pm Monday to Saturday, or 11am-3pm Sundays",
+                url: "https://www.habitatvictoria.com/volunteer"
+            },
+            {
+                title: "Volunteer Board Member",
+                organization: "Greater Victoria Down Syndrome Society",
+                skills: ["Food Service & Events", "Strategy Development & Business Planning"],
+                location: "Victoria BC",
+                commitment: "Monthly meetings (mostly virtual with occasional in person meetings), support events throughout the year",
+                url: "https://email%20to%20info@gvdss.org/"
+            },
+            {
+                title: "Dog Care Support Coordinator",
+                organization: "ElderDog South Vancouver Island Pawds",
+                skills: ["Animals & Environment"],
+                location: "Victoria, BC, Canada",
+                commitment: "up to 10 hours/week",
+                url: "https://elderdog.ca/volunteer/"
+            },
+            {
+                title: "Dog Walkers Wanted",
+                organization: "ElderDog South Vancouver Island Pawds",
+                skills: ["Animals & Environment"],
+                location: "Saanich, BC, Canada",
+                commitment: "You choose who, when, where and for how long you’d like to walk.",
+                url: "https://elderdog.ca/about/"
+            },
+            {
+                title: "Nail Painting",
+                organization: "M'akola ILBC Housing Society",
+                skills: ["Arts", "Hobbies & Crafts", "Housing & Facilities"],
+                location: "817 Goldstream Avenue Victoria",
+                commitment: "Anytime",
+                url: "http://makola.bc.ca/homes/assisted-living/"
+            },
+            {
+                title: "Chair Yoga/ Fitness Instructor",
+                organization: "M'akola ILBC Housing Society",
+                skills: ["Housing & Facilities", "Sports & Recreation"],
+                location: "817 Goldstream Avenue Victoria",
+                commitment: "Anytime",
+                url: "http://makola.bc.ca/homes/assisted-living/"
+            },
+            {
+                title: "Bus Driver for Outings",
+                organization: "M'akola ILBC Housing Society",
+                skills: ["Housing & Facilities"],
+                location: "817 Goldstream Avenue Victoria",
+                commitment: "Weekday - Daytime, Weekday - Evening, Weekend - Daytime",
+                url: "http://makola.bc.ca/homes/assisted-living/"
+            },
+            {
+                title: "Event Volunteer - Wednesdays",
+                organization: "M'akola ILBC Housing Society",
+                skills: ["Housing & Facilities", "Food Service & Events"],
+                location: "817 Goldstream Avenue Victoria",
+                commitment: "Max 1 hour performance, anytime",
+                url: "http://makola.bc.ca/homes/assisted-living/"
+            },
+            {
+                title: "Childminding Volunteer",
+                organization: "Saanich Parks, Recreation & Community Services",
+                skills: ["Housing & Facilities", "Children & Family"],
+                location: "Saanich Commonwealth Place, Elk Lake Drive, Victoria, BC, Canada",
+                commitment: "Weekday - Daytime",
+                url: "https://app.betterimpact.com/PublicOrganization/20c2e09f-5b7f-47f2-9a32-f3ad6ddc0343/Gvi/dda0b8e6-362d-4aba-a7c6-300e94937ea1/1"
+            },
+            {
+                title: "Preschool Program Volunteer",
+                organization: "Saanich Parks, Recreation & Community Services",
+                skills: ["Housing & Facilities", "Children & Family"],
+                location: "4636 Elk Lake Drive",
+                commitment: "Weekday - Daytime",
+                url: "https://app.betterimpact.com/PublicOrganization/20c2e09f-5b7f-47f2-9a32-f3ad6ddc0343/Gvi/8da66772-718d-4512-84b5-307adae3c967/1"
+            },
+            {
+                title: "Art Exhibitions Volunteer",
+                organization: "Saanich Parks, Recreation & Community Services",
+                skills: ["Arts", "Language & Culture"],
+                location: "Saanich Municipal Hall, Vernon Avenue, Victoria, BC, Canada",
+                commitment: "Weekday - Daytime, Weekday - Evening, Weekend - Daytime",
+                url: "https://app.betterimpact.com/PublicOrganization/20c2e09f-5b7f-47f2-9a32-f3ad6ddc0343/Gvi/fa860272-9017-43a8-80bb-979b99680c38/1"
+            },
+            {
+                title: "Program Assistant - Camp Thunderbird",
+                organization: "YMCA-YWCA Vancouver Island",
+                skills: ["Children & Family", "Sports & Recreation", "Housing & Facilities"],
+                location: "Camp Thunderbird",
+                commitment: "Weekday - Daytime, Weekday - Evening, Weekend - Daytime, Weekend - Evening",
+                url: "https://vancouverislandy.com/"
+            },
+            {
+                title: "Star Cinema Event Host",
+                organization: "Victoria Film Festival",
+                skills: ["Arts", "Language & Culture"],
+                location: "9840 Third St, Sidney, BC V8L 3A7, Canada",
+                commitment: "Weekday - Daytime, Weekday - Evening, Weekend - Daytime, Weekend - Evening",
+                url: "https://www.victoriafilmfestival.com/"
+            },
+            {
+                title: "Yoga Class for Seniors",
+                organization: "Gorge View Society",
+                skills: ["Sports & Recreation"],
+                location: "Victoria BC",
+                commitment: "Weekday - Daytime, Weekday - Evening",
+                url: "https://victoria.volunteerattract.com/SearchForm.php?Form=VP_Applicants&PositionNumber=4109&NoNav"
+            },
+            {
+                title: "Gallery Interpreter / Docent",
+                organization: "Maritime Museum of BC",
+                skills: ["Arts", "Language & Culture"],
+                location: "Maritime Museum of BC",
+                commitment: "Weekday - Daytime, Weekend - Daytime",
+                url: "https://app.betterimpact.com/Application?OrganizationGuid=be774ca9-1ec0-4005-bac5-1e010c7ecd3b"
+            },
+            {
+                title: "Programs Volunteer",
+                organization: "Maritime Museum of BC",
+                skills: ["Arts", "Language & Culture"],
+                location: "744 Douglas Street",
+                commitment: "Weekday - Daytime, Weekend - Daytime",
+                url: "https://app.betterimpact.com/Application?OrganizationGuid=be774ca9-1ec0-4005-bac5-1e010c7ecd3b"
+            },
+            {
+                title: "Chief Operating Officer - Operations Group",
+                organization: "InnovativeCommunities.Org Foundation",
+                skills: ["Business & Management", "For Profit & Nonprofit Development"],
+                location: "722 Cormorant Street, Victoria, BC, Canada",
+                commitment: "Anytime",
+                url: "https://www.innovativecommunities.org/join-ico/"
+            },
+            {
+                title: "Board Trustee - Treasurer - Organizational Governance & Finance",
+                organization: "InnovativeCommunities.Org Foundation",
+                skills: ["Business & Management", "For Profit & Nonprofit Development", "Finance"],
+                location: "Remote",
+                commitment: "4-6 hours, every two months",
+                url: "https://www.innovativecommunities.org/join-ico/"
+            },
+            {
+                title: "",
+                organization: "",
+                skills: [""],
+                location: "",
+                commitment: "",
+                url: ""
+            },
+            {
+                title: "",
+                organization: "",
+                skills: [""],
+                location: "",
+                commitment: "",
+                url: ""
+            },
+            
+
+            
+
+        ];
+
+        let selectedSkills = [];
+        const skillSelect = document.getElementById('skillSelect');
+        const selectedSkillsContainer = document.getElementById('selectedSkills');
+        const selectedSkillsBanner = document.getElementById('selectedSkillsBanner');
+        const findButton = document.getElementById('findButton');
+        const resultsGrid = document.getElementById('resultsGrid');
+        const formContainer = document.getElementById('formContainer');
+        const skillsBanner = document.getElementById('skillsBanner');
+
+        // Populate skills dropdown
+        skills.forEach(skill => {
+            const option = document.createElement('option');
+            option.value = skill;
+            option.textContent = skill;
+            skillSelect.appendChild(option);
+        });
+
+        // Handle skill selection
+        skillSelect.addEventListener('change', (e) => {
+            const skill = e.target.value;
+            if (skill && !selectedSkills.includes(skill)) {
+                selectedSkills.push(skill);
+                updateSelectedSkills();
+                updateDropdown();
+                findButton.disabled = selectedSkills.length === 0;
+            }
+            skillSelect.value = '';
+        });
+
+        function updateSelectedSkills() {
+            selectedSkillsContainer.innerHTML = '';
+            selectedSkillsBanner.innerHTML = '';
+            selectedSkills.forEach(skill => {
+                // Create tag for form
+                const tag = document.createElement('span');
+                tag.className = 'skill-tag';
+                tag.innerHTML = ` 
+                    ${skill} 
+                    <button class="remove-skill" onclick="removeSkill('${skill}')">&times;</button>
+                `;
+                selectedSkillsContainer.appendChild(tag);
+
+                // Create tag for banner
+                const bannerTag = document.createElement('span');
+                bannerTag.className = 'skill-tag';
+                bannerTag.innerHTML = ` 
+                    ${skill} 
+                    <button class="remove-skill" onclick="removeSkill('${skill}')">&times;</button>
+                `;
+                selectedSkillsBanner.appendChild(bannerTag);
+            });
+        }
+
+        function updateDropdown() {
+            // Clear existing options except the first one
+            skillSelect.innerHTML = '<option value="">+ Add a skill</option>';
+            
+            // Add remaining skills
+            skills.filter(skill => !selectedSkills.includes(skill))
+                .forEach(skill => {
+                    const option = document.createElement('option');
+                    option.value = skill;
+                    option.textContent = skill;
+                    skillSelect.appendChild(option);
+                });
+        }
+
+        function removeSkill(skill) {
+            selectedSkills = selectedSkills.filter(s => s !== skill);
+            updateSelectedSkills();
+            updateDropdown();
+            findButton.disabled = selectedSkills.length === 0;
+            
+            if (selectedSkills.length === 0) {
+                formContainer.classList.remove('hidden');
+                skillsBanner.classList.remove('visible');
+                resultsGrid.style.opacity = '0';
+            } else {
+                updateOpportunities();
+            }
+        }
+
+        function updateOpportunities() {
+            const filteredOpportunities = opportunities.filter(opp =>
+                opp.skills.some(skill => selectedSkills.includes(skill))
+            );
+
+            // Fade out cards that no longer match
+            const cards = resultsGrid.children;
+            Array.from(cards).forEach(card => {
+                const cardSkills = Array.from(card.querySelector('.card-skills').children)
+                    .map(span => span.textContent);
+                
+                const stillMatches = cardSkills.some(skill => selectedSkills.includes(skill));
+                
+                if (!stillMatches) {
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.9)';
+                    setTimeout(() => {
+                        card.remove();
+                    }, 300);
+                }
+            });
+
+            // Add any new matches that weren't there before
+            filteredOpportunities.forEach(opp => {
+                const exists = Array.from(cards).some(card => 
+                    card.querySelector('.card-title').textContent === opp.title
+                );
+
+                if (!exists) {
+                    const card = document.createElement('div');
+                    card.className = 'opportunity-card';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.9)';
+                    
+                    // Wrap the card content in an anchor tag for the redirection
+                    const anchor = document.createElement('a');
+                    anchor.href = opp.url;
+                    anchor.target = "_blank"; // Open in a new tab
+                    anchor.style.textDecoration = 'none'; // Remove underline from the link
+
+                    // Add the card content inside the anchor tag
+                    anchor.innerHTML = `
+                        <h3 class="card-title">${opp.title}</h3>
+                        <p class="card-org">${opp.organization}</p>
+                        <div class="card-skills">
+                            ${opp.skills.map(skill => 
+                                `<span class="card-skill-tag">${skill}</span>`
+                            ).join('')}
+                        </div>
+                        <p class="card-detail"><strong>Location:</strong> ${opp.location}</p>
+                        <p class="card-detail"><strong>Time:</strong> ${opp.commitment}</p>
+                    `;
+                    
+                    card.appendChild(anchor);
+                    resultsGrid.appendChild(card);
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'scale(1)';
+                    }, 50);
+                }
+            });
+
+            setTimeout(() => {
+                resultsGrid.style.opacity = '1';
+            }, 300);
+        }
+
+        findButton.addEventListener('click', () => {
+            formContainer.classList.add('hidden');
+            skillsBanner.classList.add('visible');
+            updateOpportunities();
+        });
+    </script>
+</body>
+</html>
